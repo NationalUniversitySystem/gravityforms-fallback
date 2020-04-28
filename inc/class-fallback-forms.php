@@ -24,6 +24,7 @@ class Fallback_Forms {
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 99 );
 		add_filter( 'gform_get_form_filter', [ $this, 'add_fallback_form' ], 10, 2 );
+		add_action( 'rest_api_init', [ $this, 'register_endpoint' ] );
 	}
 
 	/**
@@ -125,6 +126,22 @@ class Fallback_Forms {
 		$backup_form_markup = $this->build_backup_form( $backup_form );
 
 		return $form_string . $backup_form_markup;
+	}
+
+	/**
+	 * Register a faux endpoint to ping and check for the server.
+	 * This endpoint needs to be added to the cache bypass of Cloudflare or whatever cache system is in use.
+	 *
+	 * @return void
+	 */
+	public function register_endpoint() {
+		$namespace = 'gravityforms-fallback/v' . GF_FALLBACK_VERSION;
+
+		register_rest_route( $namespace, '/faux', [
+			'methods'  => \WP_REST_Server::READABLE,
+			'callback' => [ $this, 'get_posts' ],
+			'args'     => [],
+		] );
 	}
 
 	/**
@@ -237,5 +254,29 @@ class Fallback_Forms {
 		</form>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Faux method to return some nonimportant data.
+	 * In this case it's the IDs of the latest 3 pages.
+	 *
+	 * @return mixed
+	 */
+	public function get_posts() {
+		$posts_query = new \WP_Query( [
+			'post_type'              => 'page',
+			'posts_per_page'         => 3,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+
+		] );
+
+		if ( ! $posts_query->have_posts() ) {
+			return new \WP_Error( 'empty_posts', 'There are no posts', [ 'status' => 404 ] );
+		}
+
+		return new \WP_REST_Response( $posts_query->posts, 200 );
 	}
 }
