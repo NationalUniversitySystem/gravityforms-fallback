@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.3
+- Add more invalid fields to not display.
+- Add filter `gf_fallback_form_markup` to manipulate the form externally.
+
 ### 0.0.2
 - Add faux REST API endpoint to test cache against.
 

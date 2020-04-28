@@ -123,7 +123,7 @@ class Fallback_Forms {
 			}
 		}
 
-		$backup_form_markup = $this->build_backup_form( $backup_form );
+		$backup_form_markup = apply_filters( 'gf_fallback_form_markup', $this->build_backup_form( $backup_form ) );
 
 		return $form_string . $backup_form_markup;
 	}
@@ -166,6 +166,8 @@ class Fallback_Forms {
 						'program',
 						'degree',
 						'nu_honey',
+						'html',
+						'consent',
 					];
 
 					if ( in_array( $field['type'], $invalid_fields, true ) ) {
