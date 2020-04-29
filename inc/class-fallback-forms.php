@@ -19,6 +19,39 @@ class Fallback_Forms {
 	public static $instance = false;
 
 	/**
+	 * Invalid fields (field non grata)
+	 *
+	 * @var array
+	 */
+	private $invalid_fields = [
+		'nu_honey',
+		'html',
+	];
+
+	/**
+	 * Fields classified as checkboxes
+	 *
+	 * @var array
+	 */
+	private $checkbox_fields = [
+		'checkbox',
+		'military',
+		'gdpr',
+		'consent',
+	];
+
+	/**
+	 * Fields classified as select/dropdown
+	 *
+	 * @var array
+	 */
+	private $select_fields = [
+		'select',
+		'degree',
+		'program',
+	];
+
+	/**
 	 * Using construct method to add any actions and filters
 	 */
 	public function __construct() {
@@ -70,18 +103,36 @@ class Fallback_Forms {
 
 		if ( is_array( $form['fields'] ) ) {
 			foreach ( $form['fields'] as $field ) {
-				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				if ( 'visible' === $field->visibility ) {
-					$backup_form['fields'][ $field->id ] = [
-						'id'          => $field->id,
-						'type'        => $field->type,
-						'label'       => 'hidden' !== $field->type ? $field->label : '',
-						'input_name'  => $field->inputName,
-						'description' => $field->description,
-						'css-class'   => $field->cssClass,
-					];
+				if ( 'administrative' === $field->visibility ) {
+					continue;
 				}
 
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$backup_form['fields'][ $field->id ] = [
+					'id'          => $field->id,
+					'type'        => $field->type,
+					'label'       => 'hidden' !== $field->type ? $field->label : '',
+					'input_name'  => $field->inputName,
+					'description' => $field->description,
+					'css_class'   => $field->cssClass,
+					'choices'     => ! empty( $field->choices ) ? $field->choices : [],
+					'required'    => $field->isRequired,
+				];
+
+				if ( in_array( $field->type, [ 'military', 'gdpr', 'consent' ], true ) ) {
+					switch ( $field->type ) {
+						case 'military':
+						case 'gdpr':
+							$backup_form['fields'][ $field->id ]['description'] = $field->choices[0]['text'];
+							break;
+						case 'consent':
+							$backup_form['fields'][ $field->id ]['description']    = $field->checkboxLabel;
+							$backup_form['fields'][ $field->id ]['privacy_policy'] = $field->description;
+							break;
+						default:
+							break;
+					}
+				}
 
 				if ( 'elqsiteid' === strtolower( $field->label ) && ! empty( $field->defaultValue ) ) {
 					$eloqua_site_id = $field->defaultValue;
@@ -145,6 +196,30 @@ class Fallback_Forms {
 	}
 
 	/**
+	 * Faux method to return some nonimportant data.
+	 * In this case it's the IDs of the latest 3 pages.
+	 *
+	 * @return mixed
+	 */
+	public function get_posts() {
+		$posts_query = new \WP_Query( [
+			'post_type'              => 'page',
+			'posts_per_page'         => 3,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+
+		] );
+
+		if ( ! $posts_query->have_posts() ) {
+			return new \WP_Error( 'empty_posts', 'There are no posts', [ 'status' => 404 ] );
+		}
+
+		return new \WP_REST_Response( $posts_query->posts, 200 );
+	}
+
+	/**
 	 * Build the actual markup and return it to be attached.
 	 *
 	 * @param array $backup_form The build array for the backup form.
@@ -155,73 +230,97 @@ class Fallback_Forms {
 		if ( empty( $backup_form ) || empty( $backup_form['fields'] ) ) {
 			return;
 		}
+
 		ob_start();
 		?>
-		<form class="form form--fallback d-none" id="gform_<?php echo esc_attr( $backup_form['gform_id'] ); ?>_fallback" action="" method="">
+		<form class="form form--fallback consent__below-submit d-none" id="gform_<?php echo esc_attr( $backup_form['gform_id'] ); ?>_fallback" action="" method="">
 			<div class="form__message validation_error"></div>
 			<div class="gform_fields">
 				<?php
 				foreach ( $backup_form['fields'] as $field ) :
-					$invalid_fields = [
-						'program',
-						'degree',
-						'nu_honey',
-						'html',
-						'consent',
-					];
-
-					if ( in_array( $field['type'], $invalid_fields, true ) ) {
+					if ( in_array( $field['type'], $this->invalid_fields, true ) ) {
 						continue;
 					}
+
+					$input_id = 'fb_input_' . $backup_form['gform_id'] . '_' . $field['id'];
+
+					if ( 'consent' === $field['type'] && ! empty( $field['privacy_policy'] ) ) :
+						$privacy_policy = sprintf(
+							'<div class="gfield_description">%s</div>',
+							$field['privacy_policy']
+						);
+					endif;
 
 					$wrapper_classes = [];
 
 					if ( 'hidden' !== $field['type'] ) {
 						$wrapper_classes[] = 'form__group';
+						$wrapper_classes[] = 'form__group--' . $field['type'];
 					}
 
-					if ( ! empty( $field['css-class'] ) ) {
-						$wrapper_classes[] = $field['css-class'];
+					if ( ! empty( $field['css_class'] ) ) {
+						$wrapper_classes[] = $field['css_class'];
 					}
-
 					?>
 					<div class="<?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>">
-					<?php
-					if ( ! empty( $field['label'] ) ) :
-						?>
-						<label class="form__label" for="input_<?php echo esc_attr( $field['id'] ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 						<?php
-					endif;
+						$this->echo_label( $field, $input_id );
 
-					// Data keys.
-					$data_keys = array_filter( $field, function( $value, $key ) {
-						return 0 === strpos( $key, 'data-key-' );
-					}, ARRAY_FILTER_USE_BOTH );
+						$input_type    = $field['type'];
+						$input_classes = [
+							'input',
+							'input--styled',
+							'input--' . trim( $field['type'] ),
+						];
 
-						$data_keys_attribute = '';
-					if ( ! empty( $data_keys ) ) {
-						foreach ( $data_keys as $data_key => $data_value ) {
-							$data_keys_attribute = ' ' . $data_key . '="' . $data_value . '"';
+						if ( ! empty( $field['input_name'] ) ) {
+							$input_classes[] = $field['input_name'];
 						}
-					}
 
-					$checkboxes = [
-						'checkbox',
-						'military',
-						'gdpr',
-					];
+						if ( in_array( $field['type'], $this->checkbox_fields, true ) ) {
+							$input_type      = 'checkbox';
+							$input_classes[] = 'input--checkbox';
+						} else {
+							$input_classes[] = 'col-12';
+						}
 
-					$input_type = in_array( $field['type'], $checkboxes, true ) ? 'checkbox' : $field['type'];
+						if ( in_array( $field['type'], $this->select_fields, true ) ) {
+							$input_classes[] = 'input--select';
 
-					printf(
-						'<input class="input input--checkbox input--styled %s" type="%s" name="input_%s" id="input_%s" %s>',
-						esc_attr( $field['input_name'] ),
-						esc_attr( $input_type ),
-						esc_attr( $field['id'] ),
-						esc_attr( $field['id'] ),
-						$data_keys_attribute // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					);
-					?>
+							$required_attributes = $field['required'] ? ' required aria-required="true"' : ' aria-required="false"';
+							?>
+							<select id="<?php echo esc_attr( $input_id ); ?>" name="<?php echo esc_attr( $input_id ); ?>" class="<?php echo esc_attr( implode( ' ', $input_classes ) ); ?>"<?php echo $required_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+								<option value="" label=" " selected disabled></option>
+								<?php
+								foreach ( $field['choices'] as $choice ) {
+									printf(
+										'<option value="%s">%s</option>',
+										esc_attr( $choice['value'] ),
+										esc_html( $choice['text'] )
+									);
+								}
+								?>
+							</select>
+							<?php
+
+							if ( 'program' === $field['type'] ) {
+								$programs = $this->get_programs_data();
+								echo '<input type="hidden" name="programs-data" id="programs-data" value="' . esc_js( $programs ) . '">';
+							}
+						} else {
+							printf(
+								'<input id="%s" name="%s" class="%s" type="%s" %s>',
+								esc_attr( $input_id ),
+								esc_attr( $input_id ),
+								esc_attr( implode( ' ', $input_classes ) ),
+								esc_attr( $input_type ),
+								$field['required'] ? ' required' : '',
+								$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							);
+						}
+
+						$this->echo_description( $field, $input_id );
+						?>
 					</div><!-- .form_group -->
 					<?php
 				endforeach;
@@ -253,32 +352,153 @@ class Fallback_Forms {
 				?>
 			</div>
 			<input type="submit" value="Request Info" class="btn btn--bg-gold btn--navy icon icon--arrow-right icon--margin-left">
+
+			<?php
+			if ( ! empty( $privacy_policy ) ) {
+				echo wp_kses_post( $privacy_policy );
+			}
+			?>
 		</form>
 		<?php
 		return ob_get_clean();
 	}
 
 	/**
-	 * Faux method to return some nonimportant data.
-	 * In this case it's the IDs of the latest 3 pages.
+	 * Echo the label for the field
 	 *
-	 * @return mixed
+	 * @param array  $field    Backup field being generated.
+	 * @param string $input_id Input ID and name.
+	 *
+	 * @return void
 	 */
-	public function get_posts() {
-		$posts_query = new \WP_Query( [
-			'post_type'              => 'page',
-			'posts_per_page'         => 3,
-			'fields'                 => 'ids',
+	private function echo_label( $field, $input_id ) {
+		if ( ! empty( $field['label'] ) && ! in_array( $field['type'], $this->checkbox_fields, true ) ) {
+			?>
+			<label class="form__label" for="<?php echo esc_attr( $input_id ); ?>">
+				<?php
+				echo esc_html( $field['label'] );
+
+				if ( ! empty( $field['required'] ) ) {
+					echo '<span class="required-label">*</span>';
+				}
+				?>
+			</label>
+			<?php
+		}
+	}
+
+	/**
+	 * Generate ALL the data-keys in the field based on hookds/feeds
+	 *
+	 * @param array $field Backup field being generated.
+	 *
+	 * @return string
+	 */
+	private function get_data_keys_attribute( $field ) {
+		$data_keys = array_filter( $field, function( $value, $key ) {
+			return 0 === strpos( $key, 'data-key-' );
+		}, ARRAY_FILTER_USE_BOTH );
+
+		$data_keys_attribute = '';
+		if ( ! empty( $data_keys ) ) {
+			foreach ( $data_keys as $data_key => $data_value ) {
+				$data_keys_attribute = ' ' . $data_key . '="' . $data_value . '"';
+			}
+		}
+
+		return $data_keys_attribute;
+	}
+
+	/**
+	 * Echo the description for the field
+	 *
+	 * @param array  $field    Backup field being generated.
+	 * @param string $input_id Input ID and name.
+	 *
+	 * @return void
+	 */
+	private function echo_description( $field, $input_id ) {
+		if ( ! empty( $field['description'] ) ) {
+			if ( in_array( $field['type'], $this->checkbox_fields, true ) ) {
+				printf(
+					'<label for="%s" class="m-0">%s</label>',
+					esc_attr( $input_id ),
+					wp_kses_post( $field['description'] )
+				);
+				if ( ! empty( $field['required'] ) ) {
+					echo '<span class="required-label">*</span>';
+				}
+			} else {
+				printf(
+					'<span class="form__description">%s</span>',
+					wp_kses_post( $field['description'] )
+				);
+			}
+		}
+	}
+
+	/**
+	 * Utility function to fetch programs in JSON format to use in a hidden field for JS use.
+	 *
+	 * @return json_string
+	 */
+	private function get_programs_data() {
+		$programs_data = get_transient( 'fallback_programs_data' );
+		if ( ! empty( $programs_data ) ) {
+			return $programs_data;
+		}
+
+		$programs_query_args = [
+			'order'                  => 'ASC',
+			'orderby'                => 'title',
+			'post_type'              => 'program',
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
 			'no_found_rows'          => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
+		];
+		$programs_query      = new \WP_Query( $programs_query_args );
 
-		] );
+		wp_reset_postdata();
 
-		if ( ! $posts_query->have_posts() ) {
-			return new \WP_Error( 'empty_posts', 'There are no posts', [ 'status' => 404 ] );
+		$programs_data = [];
+
+		if ( ! empty( $programs_query->posts ) ) {
+			foreach ( $programs_query->posts as $program ) {
+				$teachout = get_post_meta( $program->ID, 'teachout', true );
+				if ( 'yes' !== $teachout ) {
+					$degree_types = wp_get_post_terms(
+						$program->ID,
+						'degree-type',
+						[
+							'fields' => 'id=>name',
+						]
+					);
+
+					foreach ( $degree_types as $id => $title ) {
+						if ( ! isset( $programs_data[ $title ] ) ) {
+							$programs_data[ $title ] = [
+								'id'       => $id,
+								'title'    => $title,
+								'programs' => [],
+							];
+						}
+
+						$programs_data[ $title ]['programs'][ $program->ID ] = [
+							'ID'    => $program->ID,
+							'slug'  => $program->post_name,
+							'title' => $program->post_title,
+						];
+					}
+				}
+			}
 		}
 
-		return new \WP_REST_Response( $posts_query->posts, 200 );
+		$programs_data = wp_json_encode( $programs_data );
+
+		set_transient( 'fallback_programs_data', $programs_data, HOUR_IN_SECONDS );
+
+		return $programs_data;
 	}
 }
