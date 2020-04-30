@@ -49,6 +49,7 @@ class Fallback_Forms {
 		'select',
 		'degree',
 		'program',
+		'country-code',
 	];
 
 	/**
@@ -250,58 +251,30 @@ class Fallback_Forms {
 							$field['privacy_policy']
 						);
 					endif;
-
-					$wrapper_classes = [];
-
-					if ( 'hidden' !== $field['type'] ) {
-						$wrapper_classes[] = 'form__group';
-						$wrapper_classes[] = 'form__group--' . $field['type'];
-					}
-
-					if ( ! empty( $field['css_class'] ) ) {
-						$wrapper_classes[] = $field['css_class'];
-					}
 					?>
-					<div class="<?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>">
+					<div class="<?php echo esc_attr( implode( ' ', $this->get_input_wrapper_classes( $field ) ) ); ?>">
 						<?php
 						$this->echo_label( $field, $input_id );
 
-						$input_type    = $field['type'];
-						$input_classes = [
-							'input',
-							'input--styled',
-							'input--' . trim( $field['type'] ),
-						];
-
-						if ( ! empty( $field['input_name'] ) ) {
-							$input_classes[] = $field['input_name'];
-						}
-
-						if ( in_array( $field['type'], $this->checkbox_fields, true ) ) {
-							$input_type      = 'checkbox';
-							$input_classes[] = 'input--checkbox';
-						} else {
-							$input_classes[] = 'col-12';
-						}
+						$input_type    = ! in_array( $field['type'], $this->checkbox_fields, true ) ? $field['type'] : 'checkbox';
+						$input_classes = implode( ' ', $this->get_input_classes( $field ) );
 
 						if ( in_array( $field['type'], $this->select_fields, true ) ) {
-							$input_classes[] = 'input--select';
-
 							$required_attributes = $field['required'] ? ' required aria-required="true"' : ' aria-required="false"';
-							?>
-							<select id="<?php echo esc_attr( $input_id ); ?>" name="<?php echo esc_attr( $input_id ); ?>" class="<?php echo esc_attr( implode( ' ', $input_classes ) ); ?>"<?php echo $required_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-								<option value="" label=" " selected disabled></option>
-								<?php
-								foreach ( $field['choices'] as $choice ) {
-									printf(
-										'<option value="%s">%s</option>',
-										esc_attr( $choice['value'] ),
-										esc_html( $choice['text'] )
-									);
-								}
-								?>
-							</select>
-							<?php
+
+							$choices = $this->get_choices( $field );
+
+							printf(
+								'<select name="%s" id="%s" class="%s"%s>
+									<option value="" label=" " selected disabled></option>
+									%s
+								</select>',
+								esc_attr( $input_id ),
+								esc_attr( $input_id ),
+								esc_attr( $input_classes ),
+								$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								$choices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							);
 
 							if ( 'program' === $field['type'] ) {
 								$programs = $this->get_programs_data();
@@ -312,7 +285,7 @@ class Fallback_Forms {
 								'<input id="%s" name="%s" class="%s" type="%s" %s>',
 								esc_attr( $input_id ),
 								esc_attr( $input_id ),
-								esc_attr( implode( ' ', $input_classes ) ),
+								esc_attr( $input_classes ),
 								esc_attr( $input_type ),
 								$field['required'] ? ' required' : '',
 								$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -364,6 +337,36 @@ class Fallback_Forms {
 	}
 
 	/**
+	 * Utility function to get the input wrappers' classes in array format.
+	 * Filter provided for theme modification.
+	 *
+	 * @param array $field Backup field being generated.
+	 *
+	 * @return array
+	 */
+	private function get_input_wrapper_classes( $field ) {
+		$classes = [];
+
+		if ( 'hidden' !== $field['type'] ) {
+			$classes[] = 'form__group';
+			$classes[] = 'form__group--' . $field['type'];
+		}
+
+		if ( ! empty( $field['css_class'] ) ) {
+			$classes[] = $field['css_class'];
+		}
+
+		if ( ! empty( $field['choices'] ) ) {
+			$has_selected_value = array_filter( array_column( $field['choices'], 'isSelected' ) );
+			if ( ! empty( $has_selected_value ) ) {
+				$classes[] = 'form__group--active';
+			}
+		}
+
+		return apply_filters( 'gf_fallback_input_wrapper_classes', $classes, $field );
+	}
+
+	/**
 	 * Echo the label for the field
 	 *
 	 * @param array  $field    Backup field being generated.
@@ -388,7 +391,7 @@ class Fallback_Forms {
 	}
 
 	/**
-	 * Generate ALL the data-keys in the field based on hookds/feeds
+	 * Generate ALL the data-keys in the field based on hooks/feeds
 	 *
 	 * @param array $field Backup field being generated.
 	 *
@@ -435,6 +438,61 @@ class Fallback_Forms {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Utility function to get the input's classes in array format.
+	 * Filter provided for theme modification.
+	 *
+	 * @param array $field Backup field being generated.
+	 *
+	 * @return array
+	 */
+	private function get_input_classes( $field ) {
+		$classes = [
+			'input',
+			'input--styled',
+			'input--' . trim( $field['type'] ),
+		];
+
+		if ( ! empty( $field['input_name'] ) ) {
+			$classes[] = $field['input_name'];
+		}
+
+		// All fields get "col-12" class except checkboxes.
+		if ( in_array( $field['type'], $this->checkbox_fields, true ) ) {
+			$classes[] = 'input--checkbox';
+		} else {
+			$classes[] = 'col-12';
+		}
+
+		if ( in_array( $field['type'], $this->select_fields, true ) ) {
+			$classes[] = 'input--select';
+		}
+
+		return apply_filters( 'gf_fallback_input_classes', $classes, $field );
+	}
+
+	/**
+	 * Utility function to get a dropdown/radio field's choices and to keep things organized
+	 *
+	 * @param array $field Backup field being generated.
+	 *
+	 * @return string
+	 */
+	private function get_choices( $field ) {
+		$choices = '';
+
+		foreach ( $field['choices'] as $choice ) {
+			$choices .= sprintf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr( $choice['value'] ),
+				! empty( $choice['isSelected'] ) ? ' selected' : '',
+				esc_html( $choice['text'] )
+			);
+		}
+
+		return $choices;
 	}
 
 	/**

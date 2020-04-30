@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.5
+- Add functionality for admin selected choice in dropdowns.
+- Refactor input and wrapper classes to their own methods.
+
 ### 0.0.4
 - Set up checkboxes properly.
 - Set types of fields as properties of the class.
