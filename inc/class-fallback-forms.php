@@ -265,7 +265,7 @@ class Fallback_Forms {
 							$choices = $this->get_choices( $field );
 
 							printf(
-								'<select name="%s" id="%s" class="%s"%s>
+								'<select name="%s" id="%s" class="%s" %s %s>
 									<option value="" label=" " selected disabled></option>
 									%s
 								</select>',
@@ -273,6 +273,7 @@ class Fallback_Forms {
 								esc_attr( $input_id ),
 								esc_attr( $input_classes ),
 								$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								$this->get_data_keys_attribute( $field ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 								$choices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							);
 
@@ -282,7 +283,7 @@ class Fallback_Forms {
 							}
 						} else {
 							printf(
-								'<input id="%s" name="%s" class="%s" type="%s" %s>',
+								'<input id="%s" name="%s" class="%s" type="%s" %s %s>',
 								esc_attr( $input_id ),
 								esc_attr( $input_id ),
 								esc_attr( $input_classes ),

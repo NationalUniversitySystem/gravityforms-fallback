@@ -1,5 +1,8 @@
 ## Changelog
 
+### 0.0.6
+- Fix `data-keys-*`, had been fully excluded.
+
 ### 0.0.5
 - Add functionality for admin selected choice in dropdowns.
 - Refactor input and wrapper classes to their own methods.
