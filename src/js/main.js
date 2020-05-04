@@ -1,2 +1,3 @@
-import './inc/init.js';
-import './inc/program-population.js';
+import './inc/init';
+import './inc/program-population';
+import './inc/form-id';
