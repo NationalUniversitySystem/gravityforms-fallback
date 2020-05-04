@@ -75,9 +75,16 @@ import axios from 'axios';
 								} else {
 									formMessage.innerHTML = 'Thank you for your submission.';
 								}
+
+								formMessage.scrollIntoView( {
+									block: 'center',
+								} );
 							} )
 							.catch( () => {
 								formMessage.innerHTML = 'There was an error with your submission. Please try again.';
+								formMessage.scrollIntoView( {
+									block: 'center',
+								} );
 								form.querySelector( 'input[type="submit"' ).removeAttribute( 'disabled' );
 							} );
 					} );
