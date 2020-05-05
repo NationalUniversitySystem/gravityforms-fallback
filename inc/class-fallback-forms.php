@@ -59,6 +59,7 @@ class Fallback_Forms {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ], 99 );
 		add_filter( 'gform_get_form_filter', [ $this, 'add_fallback_form' ], 10, 2 );
 		add_action( 'rest_api_init', [ $this, 'register_endpoint' ] );
+		add_action( 'save_post_program', [ $this, 'flush_transient' ], 10, 3 );
 	}
 
 	/**
@@ -218,6 +219,19 @@ class Fallback_Forms {
 		}
 
 		return new \WP_REST_Response( $posts_query->posts, 200 );
+	}
+
+	/**
+	 * Flush the transient for programs when we save/update a program.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated or not.
+	 *
+	 * @return void
+	 */
+	public function flush_transient( $post_id, $post, $update ) {
+		delete_transient( 'fallback_programs_data' );
 	}
 
 	/**
