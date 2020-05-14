@@ -51,11 +51,6 @@ import axios from 'axios';
 						const feedName = feedElement.dataset.feedName;
 						const dataForFeed = new FormData();
 
-						if ( 'eloqua' === feedName ) {
-							dataForFeed.append( 'elqsiteid', feedElement.dataset.elqsiteid );
-							dataForFeed.append( 'elqformname', feedElement.dataset.elqformname );
-						}
-
 						[ ...formKeys ].forEach( function( key ) {
 							const element = d.querySelector( '#' + form.id + ' #' + key );
 
@@ -75,8 +70,7 @@ import axios from 'axios';
 						} )
 							.then( response => {
 								if ( 200 !== response.status ) {
-									formMessage.innerHTML = 'There was an error with your submission. Please try again.';
-									form.querySelector( 'input[type="submit"' ).removeAttribute( 'disabled' );
+									throw new Error( 'There was an error with your submission. Please try again.' );
 								} else {
 									formMessage.innerHTML = 'Thank you for your submission.';
 								}

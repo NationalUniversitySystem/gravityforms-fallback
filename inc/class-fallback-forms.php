@@ -62,8 +62,6 @@ class Fallback_Forms {
 			return $form_string;
 		}
 
-		$eloqua_site_id   = null;
-		$eloqua_form_name = null;
 		$backup_form      = [
 			'gform_id' => $form['id'],
 			'fields'   => [],
@@ -85,6 +83,7 @@ class Fallback_Forms {
 					'css_class'   => $field->cssClass,
 					'choices'     => ! empty( $field->choices ) ? $field->choices : [],
 					'required'    => $field->isRequired,
+					'default_value' => $field->defaultValue,
 				];
 
 				if ( in_array( $field->type, [ 'military', 'gdpr', 'consent' ], true ) ) {
@@ -102,13 +101,6 @@ class Fallback_Forms {
 					}
 				}
 
-				if ( 'elqsiteid' === strtolower( $field->label ) && ! empty( $field->defaultValue ) ) {
-					$eloqua_site_id = $field->defaultValue;
-				}
-
-				if ( 'elqformname' === strtolower( $field->label ) && ! empty( $field->defaultValue ) ) {
-					$eloqua_form_name = $field->defaultValue;
-				}
 				// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 		}
@@ -127,11 +119,6 @@ class Fallback_Forms {
 						'format' => $feed['meta']['requestFormat'],
 						'fields' => wp_list_pluck( $feed['meta']['fieldValues'], 'custom_key', 'value' ),
 					];
-
-					if ( 'eloqua' === $feed_slug ) {
-						$backup_form['feeds'][ $feed_slug ]['elqsiteid']   = $eloqua_site_id;
-						$backup_form['feeds'][ $feed_slug ]['elqformname'] = $eloqua_form_name;
-					}
 
 					foreach ( $feed['meta']['fieldValues'] as $field ) {
 						if ( array_key_exists( $field['value'], $backup_form['fields'] ) ) {

@@ -127,11 +127,12 @@ class Build_Form {
 						}
 					} else {
 						printf(
-							'<input id="%s" name="%s" class="%s" type="%s" %s %s>',
+							'<input id="%s" name="%s" class="%s" type="%s" value="%s" %s %s>',
 							esc_attr( $input_id ),
 							esc_attr( $input_id ),
 							esc_attr( $input_classes ),
 							esc_attr( $input_type ),
+							esc_attr( $field['default_value'] ),
 							$field['required'] ? ' required' : '',
 							$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
