@@ -84,7 +84,9 @@ class Build_Form {
 						continue;
 					}
 
-					$input_id = 'fb_input_' . $this->form['gform_id'] . '_' . $field['id'];
+					$input_id      = 'fb_input_' . $this->form['gform_id'] . '_' . $field['id'];
+					$input_type    = ! in_array( $field['type'], $this->checkbox_fields, true ) ? $field['type'] : 'checkbox';
+					$input_classes = implode( ' ', $this->get_input_classes( $field ) );
 
 					if ( 'consent' === $field['type'] && ! empty( $field['privacy_policy'] ) ) :
 						$privacy_policy = sprintf(
@@ -92,52 +94,56 @@ class Build_Form {
 							$field['privacy_policy']
 						);
 					endif;
-					?>
-					<div class="<?php echo esc_attr( implode( ' ', $this->get_input_wrapper_classes( $field ) ) ); ?>">
-						<?php
-						$this->echo_label( $field, $input_id );
 
-						$input_type    = ! in_array( $field['type'], $this->checkbox_fields, true ) ? $field['type'] : 'checkbox';
-						$input_classes = implode( ' ', $this->get_input_classes( $field ) );
-
-						if ( in_array( $field['type'], $this->select_fields, true ) ) {
-							$required_attributes = $field['required'] ? ' required aria-required="true"' : ' aria-required="false"';
-
-							$choices = $this->get_choices( $field );
-
-							printf(
-								'<select name="%s" id="%s" class="%s" %s %s>
-									<option value="" label=" " selected disabled></option>
-									%s
-								</select>',
-								esc_attr( $input_id ),
-								esc_attr( $input_id ),
-								esc_attr( $input_classes ),
-								$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								$this->get_data_keys_attribute( $field ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								$choices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							);
-
-							if ( 'program' === $field['type'] ) {
-								$programs = $this->get_programs_data();
-								echo '<input type="hidden" name="programs-data" id="programs-data" value="' . esc_js( $programs ) . '">';
-							}
-						} else {
-							printf(
-								'<input id="%s" name="%s" class="%s" type="%s" %s %s>',
-								esc_attr( $input_id ),
-								esc_attr( $input_id ),
-								esc_attr( $input_classes ),
-								esc_attr( $input_type ),
-								$field['required'] ? ' required' : '',
-								$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							);
-						}
-
-						$this->echo_description( $field, $input_id );
+					if ( 'hidden' !== $field['type'] ) {
 						?>
-					</div><!-- .form_group -->
-					<?php
+						<div class="<?php echo esc_attr( implode( ' ', $this->get_input_wrapper_classes( $field ) ) ); ?>">
+						<?php
+					}
+
+					$this->echo_label( $field, $input_id );
+
+					if ( in_array( $field['type'], $this->select_fields, true ) ) {
+						$required_attributes = $field['required'] ? ' required aria-required="true"' : ' aria-required="false"';
+
+						$choices = $this->get_choices( $field );
+
+						printf(
+							'<select name="%s" id="%s" class="%s" %s %s>
+								<option value="" label=" " selected disabled></option>
+								%s
+							</select>',
+							esc_attr( $input_id ),
+							esc_attr( $input_id ),
+							esc_attr( $input_classes ),
+							$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$this->get_data_keys_attribute( $field ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$choices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						);
+
+						if ( 'program' === $field['type'] ) {
+							$programs = $this->get_programs_data();
+							echo '<input type="hidden" name="programs-data" id="programs-data" value="' . esc_js( $programs ) . '">';
+						}
+					} else {
+						printf(
+							'<input id="%s" name="%s" class="%s" type="%s" %s %s>',
+							esc_attr( $input_id ),
+							esc_attr( $input_id ),
+							esc_attr( $input_classes ),
+							esc_attr( $input_type ),
+							$field['required'] ? ' required' : '',
+							$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						);
+					}
+
+					$this->echo_description( $field, $input_id );
+
+					if ( 'hidden' !== $field['type'] ) {
+						?>
+						</div><!-- field wrapper div -->
+						<?php
+					}
 				endforeach;
 				?>
 			</div><!-- .gform_fields -->
