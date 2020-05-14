@@ -8,6 +8,11 @@ import axios from 'axios';
 			if ( 200 !== response.status ) {
 				revealFallBackForms();
 				activateFallBackForms();
+			} else {
+				const fallbackForms = d.querySelectorAll( '.form--fallback' );
+				fallbackForms.forEach( form => {
+					form.parentNode.removeChild( form );
+				} );
 			}
 		} )
 		.catch( () => {
