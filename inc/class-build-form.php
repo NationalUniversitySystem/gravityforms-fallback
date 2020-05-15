@@ -106,8 +106,6 @@ class Build_Form {
 					if ( in_array( $field['type'], $this->select_fields, true ) ) {
 						$required_attributes = $field['required'] ? ' required aria-required="true"' : ' aria-required="false"';
 
-						$choices = $this->get_choices( $field );
-
 						printf(
 							'<select name="%s" id="%s" class="%s" %s %s>
 								<option value="" label=" " selected disabled></option>
@@ -118,7 +116,7 @@ class Build_Form {
 							esc_attr( $input_classes ),
 							$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$this->get_data_keys_attribute( $field ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							$choices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$this->get_choices( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
 
 						if ( 'program' === $field['type'] ) {
@@ -173,6 +171,37 @@ class Build_Form {
 				endforeach;
 				?>
 			</div>
+
+			<?php
+			if ( ! empty( $this->form['confirmation'] ) ) {
+				if ( 'page' === $this->form['confirmation']['type'] ) {
+					// Remove any dynamically populated parameters since we won't have access to them.
+					$query_parameters = explode( '&', $this->form['confirmation']['queryString'] );
+					$query_parameters = array_filter( $query_parameters, function( $parameter ) {
+						return ! preg_match( '/[{}]/', $parameter );
+					} );
+
+					$page_url  = get_page_link( $this->form['confirmation']['pageId'] );
+					$page_url .= ! empty( $query_parameters ) ? '?' . implode( '&', $query_parameters ) : '';
+
+					printf(
+						'<input type="hidden" name="confirmation" data-type="page" data-url="%s">',
+						esc_url( $page_url )
+					);
+				} elseif ( 'message' === $this->form['confirmation']['type'] ) {
+					printf(
+						'<input type="hidden" name="confirmation" data-type="message" data-message="%s">',
+						esc_attr( $this->form['confirmation']['message'] )
+					);
+				} elseif ( 'redirect' === $this->form['confirmation']['type'] ) {
+					printf(
+						'<input type="hidden" name="confirmation" data-type="redirect" data-url="%s">',
+						esc_url( $this->form['confirmation']['url'] )
+					);
+				}
+			}
+			?>
+
 			<input type="submit" value="Request Info" class="btn btn--bg-gold btn--navy icon icon--arrow-right icon--margin-left">
 
 			<?php

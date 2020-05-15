@@ -62,7 +62,7 @@ class Fallback_Forms {
 			return $form_string;
 		}
 
-		$backup_form      = [
+		$backup_form = [
 			'gform_id' => $form['id'],
 			'fields'   => [],
 		];
@@ -75,14 +75,14 @@ class Fallback_Forms {
 
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$backup_form['fields'][ $field->id ] = [
-					'id'          => $field->id,
-					'type'        => $field->type,
-					'label'       => 'hidden' !== $field->type ? $field->label : '',
-					'input_name'  => $field->inputName,
-					'description' => $field->description,
-					'css_class'   => $field->cssClass,
-					'choices'     => ! empty( $field->choices ) ? $field->choices : [],
-					'required'    => $field->isRequired,
+					'id'            => $field->id,
+					'type'          => $field->type,
+					'label'         => 'hidden' !== $field->type ? $field->label : '',
+					'input_name'    => $field->inputName,
+					'description'   => $field->description,
+					'css_class'     => $field->cssClass,
+					'choices'       => ! empty( $field->choices ) ? $field->choices : [],
+					'required'      => $field->isRequired,
 					'default_value' => $field->defaultValue,
 				];
 
@@ -127,6 +127,12 @@ class Fallback_Forms {
 					}
 				}
 			}
+		}
+
+		$confirmations = \GFFormsModel::get_form_confirmations( $form['id'] );
+		if ( ! empty( $confirmations ) ) {
+			$default_confirmation_key    = array_search( true, array_column( $confirmations, 'isDefault', 'id' ), true );
+			$backup_form['confirmation'] = $confirmations[ $default_confirmation_key ];
 		}
 
 		$backup_form_object = new Build_Form( $backup_form );

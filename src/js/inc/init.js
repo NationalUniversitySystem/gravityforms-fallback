@@ -41,17 +41,18 @@ import axios from 'axios';
 			form.addEventListener( 'submit', event => {
 				event.preventDefault();
 
-				const formData = new FormData( form );
 				const formNode = d.getElementById( form.id );
 				const feedElements = formNode.querySelectorAll( 'input[name="feeds"]' );
-				const formKeys = formData.keys();
+				const confirmation = formNode.querySelector( 'input[name="confirmation"]' );
 
 				if ( feedElements ) {
+					const formData = new FormData( form );
+
 					feedElements.forEach( feedElement => {
 						const feedName = feedElement.dataset.feedName;
 						const dataForFeed = new FormData();
 
-						[ ...formKeys ].forEach( function( key ) {
+						[ ...formData.keys() ].forEach( key => {
 							const element = d.querySelector( '#' + form.id + ' #' + key );
 
 							if ( element ) {
@@ -70,14 +71,10 @@ import axios from 'axios';
 						} )
 							.then( response => {
 								if ( 200 !== response.status ) {
-									throw new Error( 'There was an error with your submission. Please try again.' );
+									throw new Error();
 								} else {
-									formMessage.innerHTML = 'Thank you for your submission.';
+									runConfirmation( confirmation, form );
 								}
-
-								formMessage.scrollIntoView( {
-									block: 'center',
-								} );
 							} )
 							.catch( () => {
 								formMessage.innerHTML = 'There was an error with your submission. Please try again.';
@@ -92,5 +89,23 @@ import axios from 'axios';
 				return false;
 			} );
 		} );
+	}
+
+	function runConfirmation( confirmation = '', form ) {
+		const redirectTypes = [
+			'page',
+			'redirect',
+		];
+
+		if ( redirectTypes.includes( confirmation.dataset.type ) && confirmation.dataset.url ) {
+			window.location.replace( confirmation.dataset.url );
+		} else {
+			const formMessage = form.querySelector( '.form__message' );
+
+			formMessage.innerHTML = confirmation.dataset.message || 'Thank you for your submission.';
+			formMessage.scrollIntoView( {
+				block: 'center',
+			} );
+		}
 	}
 } )( document );
