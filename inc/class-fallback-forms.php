@@ -107,7 +107,7 @@ class Fallback_Forms {
 		}
 
 		$feeds = \GFAPI::get_feeds( null, $form['id'], 'gravityformswebhooks' );
-		if ( ! empty( $feeds ) && ! empty( $feed['meta'] ) ) {
+		if ( ! empty( $feeds ) && ! empty( $feeds['meta'] ) ) {
 			foreach ( $feeds as $feed ) {
 				if ( 'select_fields' === $feed['meta']['requestBodyType'] ) {
 					// Set up each feed's main components and map it to the actual form fields.
