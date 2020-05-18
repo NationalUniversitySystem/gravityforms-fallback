@@ -77,7 +77,7 @@ class Build_Form {
 		?>
 		<form class="form form--fallback consent__below-submit d-none" id="gform_<?php echo esc_attr( $this->form['gform_id'] ); ?>_fallback" action="" method="">
 			<div class="form__message validation_error"></div>
-			<div class="gform_fields">
+			<div class="gform_fields gform_wrapper">
 				<?php
 				foreach ( $this->form['fields'] as $field ) :
 					if ( in_array( $field['type'], $this->invalid_fields, true ) ) {
@@ -108,7 +108,7 @@ class Build_Form {
 
 						printf(
 							'<select name="%s" id="%s" class="%s" %s %s>
-								<option value="" label=" " selected disabled></option>
+								<option value="" label="%s" selected disabled>%s</option>
 								%s
 							</select>',
 							esc_attr( $input_id ),
@@ -116,6 +116,8 @@ class Build_Form {
 							esc_attr( $input_classes ),
 							$required_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$this->get_data_keys_attribute( $field ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							empty( $field['placeholder'] ) ? ' ' : '',
+							esc_html( $field['placeholder'] ),
 							$this->get_choices( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
 
@@ -133,7 +135,7 @@ class Build_Form {
 							esc_attr( $input_type ),
 							esc_attr( $field['default_value'] ),
 							$field['required'] ? ' required' : '',
-							$placeholder,
+							$placeholder, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
 					}
