@@ -84,6 +84,7 @@ class Fallback_Forms {
 					'choices'       => ! empty( $field->choices ) ? $field->choices : [],
 					'required'      => $field->isRequired,
 					'default_value' => $field->defaultValue,
+					'placeholder'   => $field->placeholder,
 				];
 
 				if ( in_array( $field->type, [ 'military', 'gdpr', 'consent' ], true ) ) {

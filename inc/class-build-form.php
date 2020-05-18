@@ -124,14 +124,16 @@ class Build_Form {
 							echo '<input type="hidden" name="programs-data" id="programs-data" value="' . esc_js( $programs ) . '">';
 						}
 					} else {
+						$placeholder = 'hidden' !== $field['type'] && ! empty( $field['placeholder'] ) ? ' placeholder="' . $field['placeholder'] . '"' : '';
 						printf(
-							'<input id="%s" name="%s" class="%s" type="%s" value="%s" %s %s>',
+							'<input id="%s" name="%s" class="%s" type="%s" value="%s"%s%s %s>',
 							esc_attr( $input_id ),
 							esc_attr( $input_id ),
 							esc_attr( $input_classes ),
 							esc_attr( $input_type ),
 							esc_attr( $field['default_value'] ),
 							$field['required'] ? ' required' : '',
+							$placeholder,
 							$this->get_data_keys_attribute( $field ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
 					}
