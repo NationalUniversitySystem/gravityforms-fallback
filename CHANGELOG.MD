@@ -1,5 +1,8 @@
 ## Changelog
 
+### 0.1.1
+- Add dependabot config file
+
 ### 0.1.0
 - Add formID functionality
 - Add functionality for scrolling to message when there has been an err… …
