@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 ( function( d ) {
-	axios.get( window.location.origin + '/wp-json/gravityforms-fallback/v0.0.6/faux/', {
+	axios.get( window.location.origin + '/wp-json/gravityforms-fallback/v0.1.0/faux/', {
 		timeout: 2000,
 	} )
 		.then( response => {
