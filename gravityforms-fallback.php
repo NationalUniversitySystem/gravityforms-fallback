@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gravity Forms - Fallback
  * Description: Plugin to have fallback form functionality if Gravity Forms or sever is down.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Mike Estrada
  *
  * @package GF_Fallback
@@ -16,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'GF_FALLBACK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_FALLBACK_URL', plugin_dir_url( __FILE__ ) );
-define( 'GF_FALLBACK_VERSION', '0.1.0' );
+define( 'GF_FALLBACK_VERSION', '0.1.1' );
 
 use GF_Fallback\Autoload\Init;
 
