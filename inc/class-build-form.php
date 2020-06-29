@@ -258,8 +258,16 @@ class Build_Form {
 	 */
 	private function echo_label( $field, $input_id ) {
 		if ( ! empty( $field['label'] ) && ! in_array( $field['type'], $this->checkbox_fields, true ) ) {
+			$label_classes = [ 'form__label' ];
+
+			if ( ! empty( $field['label_placement'] ) ) {
+				$label_classes[] = $field['label_placement'];
+				if ( false !== stripos( $field['label_placement'], 'hidden_label' ) ) {
+					$label_classes[] = 'sr-only';
+				}
+			}
 			?>
-			<label class="form__label" for="<?php echo esc_attr( $input_id ); ?>">
+			<label class="<?php echo esc_attr( implode( ' ', $label_classes ) ); ?>" for="<?php echo esc_attr( $input_id ); ?>">
 				<?php
 				echo esc_html( $field['label'] );
 

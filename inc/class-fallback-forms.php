@@ -75,16 +75,17 @@ class Fallback_Forms {
 
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$backup_form['fields'][ $field->id ] = [
-					'id'            => $field->id,
-					'type'          => $field->type,
-					'label'         => 'hidden' !== $field->type ? $field->label : '',
-					'input_name'    => $field->inputName,
-					'description'   => $field->description,
-					'css_class'     => $field->cssClass,
-					'choices'       => ! empty( $field->choices ) ? $field->choices : [],
-					'required'      => $field->isRequired,
-					'default_value' => $field->defaultValue,
-					'placeholder'   => $field->placeholder,
+					'id'              => $field->id,
+					'type'            => $field->type,
+					'label'           => 'hidden' !== $field->type ? $field->label : '',
+					'label_placement' => $field->labelPlacement ? $field->labelPlacement : '',
+					'input_name'      => $field->inputName,
+					'description'     => $field->description,
+					'css_class'       => $field->cssClass,
+					'choices'         => ! empty( $field->choices ) ? $field->choices : [],
+					'required'        => $field->isRequired,
+					'default_value'   => $field->defaultValue,
+					'placeholder'     => $field->placeholder,
 				];
 
 				if ( in_array( $field->type, [ 'military', 'gdpr', 'consent' ], true ) ) {
