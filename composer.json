@@ -1,0 +1,17 @@
+{
+    "name": "nationaluniversitysystem/gravityforms-fallback",
+    "description": "Functionality to have a fallback system of forms for Gravity Forms if server is ever down.",
+    "type": "wordpress-plugin",
+    "version": "0.1.0",
+    "authors": [
+        {
+            "name": "Mike Estrada",
+            "email": "mestrada@nu.edu"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.4.0",
+        "composer/installers": "~1.0"
+    }
+}

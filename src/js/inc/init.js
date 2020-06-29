@@ -1,13 +1,18 @@
 import axios from 'axios';
 
 ( function( d ) {
-	axios.get( window.location.origin + '/wp-json/gravityforms-fallback/v0.0.6/faux/', {
+	axios.get( window.location.origin + '/wp-json/gravityforms-fallback/v0.1.0/faux/', {
 		timeout: 2000,
 	} )
 		.then( response => {
 			if ( 200 !== response.status ) {
 				revealFallBackForms();
 				activateFallBackForms();
+			} else {
+				const fallbackForms = d.querySelectorAll( '.form--fallback' );
+				fallbackForms.forEach( form => {
+					form.parentNode.removeChild( form );
+				} );
 			}
 		} )
 		.catch( () => {
@@ -18,7 +23,7 @@ import axios from 'axios';
 	function revealFallBackForms() {
 		const gforms = d.querySelectorAll( 'form[id^="gform"]:not([id$="fallback"])' );
 		gforms.forEach( form => {
-			form.style.display = 'none';
+			form.parentNode.removeChild( form );
 			const fallbackForm = d.querySelector( '#' + form.id + '_fallback' );
 
 			if ( fallbackForm ) {
@@ -36,22 +41,18 @@ import axios from 'axios';
 			form.addEventListener( 'submit', event => {
 				event.preventDefault();
 
-				const formData = new FormData( form );
 				const formNode = d.getElementById( form.id );
 				const feedElements = formNode.querySelectorAll( 'input[name="feeds"]' );
-				const formKeys = formData.keys();
+				const confirmation = formNode.querySelector( 'input[name="confirmation"]' );
 
 				if ( feedElements ) {
+					const formData = new FormData( form );
+
 					feedElements.forEach( feedElement => {
 						const feedName = feedElement.dataset.feedName;
 						const dataForFeed = new FormData();
 
-						if ( 'eloqua' === feedName ) {
-							dataForFeed.append( 'elqsiteid', feedElement.dataset.elqsiteid );
-							dataForFeed.append( 'elqformname', feedElement.dataset.elqformname );
-						}
-
-						[ ...formKeys ].forEach( function( key ) {
+						[ ...formData.keys() ].forEach( key => {
 							const element = d.querySelector( '#' + form.id + ' #' + key );
 
 							if ( element ) {
@@ -70,14 +71,16 @@ import axios from 'axios';
 						} )
 							.then( response => {
 								if ( 200 !== response.status ) {
-									formMessage.innerHTML = 'There was an error with your submission. Please try again.';
-									form.querySelector( 'input[type="submit"' ).removeAttribute( 'disabled' );
+									throw new Error();
 								} else {
-									formMessage.innerHTML = 'Thank you for your submission.';
+									runConfirmation( confirmation, form );
 								}
 							} )
 							.catch( () => {
 								formMessage.innerHTML = 'There was an error with your submission. Please try again.';
+								formMessage.scrollIntoView( {
+									block: 'center',
+								} );
 								form.querySelector( 'input[type="submit"' ).removeAttribute( 'disabled' );
 							} );
 					} );
@@ -86,5 +89,23 @@ import axios from 'axios';
 				return false;
 			} );
 		} );
+	}
+
+	function runConfirmation( confirmation = '', form ) {
+		const redirectTypes = [
+			'page',
+			'redirect',
+		];
+
+		if ( redirectTypes.includes( confirmation.dataset.type ) && confirmation.dataset.url ) {
+			window.location.replace( confirmation.dataset.url );
+		} else {
+			const formMessage = form.querySelector( '.form__message' );
+
+			formMessage.innerHTML = confirmation.dataset.message || 'Thank you for your submission.';
+			formMessage.scrollIntoView( {
+				block: 'center',
+			} );
+		}
 	}
 } )( document );
