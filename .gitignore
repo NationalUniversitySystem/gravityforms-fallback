@@ -12,5 +12,6 @@ node_modules
 # Individual gulp configs
 gulp.config.local.js
 
-# composer directory
+# composer files
+composer.lock
 /vendor/

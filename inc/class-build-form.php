@@ -155,24 +155,13 @@ class Build_Form {
 				<div class="hooks">
 					<?php
 					foreach ( $this->form['feeds'] as $feed ) :
-						$input_markup = sprintf(
+						printf(
 							'<input type="hidden" name="feeds" data-feed-name="%s" data-feed-action="%s" data-feed-method="%s" data-feed-format="%s">',
 							esc_attr( $feed['name'] ),
 							esc_attr( $feed['action'] ),
 							esc_attr( $feed['method'] ),
 							esc_attr( $feed['format'] )
 						);
-
-						if ( 'eloqua' === $feed['name'] ) {
-							if ( ! empty( $feed['elqsiteid'] ) ) {
-								$input_markup = str_replace( 'data-feed-name', 'data-elqsiteid="' . $feed['elqsiteid'] . '" data-feed-name', $input_markup );
-							}
-							if ( ! empty( $feed['elqformname'] ) ) {
-								$input_markup = str_replace( 'data-feed-name', 'data-elqformname="' . $feed['elqformname'] . '" data-feed-name', $input_markup );
-							}
-						}
-
-						echo $input_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					endforeach;
 					?>
 				</div>

@@ -23,7 +23,7 @@ import axios from 'axios';
 	function revealFallBackForms() {
 		const gforms = d.querySelectorAll( 'form[id^="gform"]:not([id$="fallback"])' );
 		gforms.forEach( form => {
-			form.style.display = 'none';
+			form.parentNode.removeChild( form );
 			const fallbackForm = d.querySelector( '#' + form.id + '_fallback' );
 
 			if ( fallbackForm ) {

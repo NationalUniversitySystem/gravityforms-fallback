@@ -11,7 +11,7 @@
 namespace GF_Fallback;
 
 if ( ! defined( 'WPINC' ) ) {
-	die( 'YOU SHALL! NOT! PASS!' );
+	die('YOU SHALL! NOT! PASS!' );
 }
 
 define( 'GF_FALLBACK_PATH', plugin_dir_path( __FILE__ ) );

@@ -8,7 +8,7 @@
 namespace GF_Fallback\Inc;
 
 /**
- * Eloqua API class
+ * Fallback_Forms class
  */
 class Fallback_Forms {
 	/**
@@ -107,7 +107,7 @@ class Fallback_Forms {
 		}
 
 		$feeds = \GFAPI::get_feeds( null, $form['id'], 'gravityformswebhooks' );
-		if ( ! empty( $feeds ) && ! empty( $feeds['meta'] ) ) {
+		if ( ! empty( $feeds ) && ! is_wp_error( $feeds ) ) {
 			foreach ( $feeds as $feed ) {
 				if ( 'select_fields' === $feed['meta']['requestBodyType'] ) {
 					// Set up each feed's main components and map it to the actual form fields.
