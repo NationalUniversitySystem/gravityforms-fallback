@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.1.2
+- Add hidden label functionality
+- Update NPM packages
+
 ### 0.1.1
 - Add dependabot config file
 
