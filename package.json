@@ -12,7 +12,7 @@
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
-    "@babel/register": "^7.10.3",
+    "@babel/register": "^7.14.5",
     "@wordpress/eslint-plugin": "^7.1.0",
     "axios": "^0.19.2",
     "babel-eslint": "^10.1.0",
