@@ -1,0 +1,15 @@
+# git files
+.gitattributes export-ignore
+.gitignore export-ignore
+
+# source files
+.editorconfig export-ignore
+cypress export-ignore
+cypress.json export-ignore
+CHANGELOG.md export-ignore
+README.md export-ignore
+utilities.sh export-ignore
+.github/dependabot.yml export-ignore
+
+# Do not use diff when looking at built asset files, treating them as binary.
+assets/**/*.* -diff
