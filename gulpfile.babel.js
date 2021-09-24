@@ -31,7 +31,8 @@ import { dest, parallel, src, series, watch } from 'gulp';
 // CSS related plugins.
 import autoprefixer from 'gulp-autoprefixer';
 import cleanCSS from 'gulp-clean-css';
-import sass from 'gulp-sass';
+import nodeSass from 'node-sass';
+import gulpSass from 'gulp-sass';
 import styleLint from 'gulp-stylelint';
 
 // JS related plugins.
@@ -47,6 +48,7 @@ import notify from 'gulp-notify';
 import plumber from 'gulp-plumber';
 import rename from 'gulp-rename';
 
+const sass = gulpSass( nodeSass );
 const server = browserSync.create();
 
 /**
