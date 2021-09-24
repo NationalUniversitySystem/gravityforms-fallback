@@ -16,6 +16,7 @@ module.exports = {
 		"@wordpress/no-global-active-element": "off",
 		"@wordpress/no-unsafe-wp-apis": "off",
 		"@wordpress/no-global-get-selection": "off",
+		"jsdoc/check-line-alignment": "off",
 		"arrow-parens": [
 			"error",
 			"as-needed"
