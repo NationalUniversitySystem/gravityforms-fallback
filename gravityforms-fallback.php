@@ -11,7 +11,7 @@
 namespace GF_Fallback;
 
 if ( ! defined( 'WPINC' ) ) {
-	die('YOU SHALL! NOT! PASS!' );
+	die( 'YOU SHALL! NOT! PASS!' );
 }
 
 define( 'GF_FALLBACK_PATH', plugin_dir_path( __FILE__ ) );
@@ -24,5 +24,5 @@ add_action( 'gform_loaded', function() {
 	require_once GF_FALLBACK_PATH . 'autoload/autoloader.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 
 	// Initializing file is in inc/class-init.php. Refer to file for setup.
-	Init::singleton();
+	new Init();
 } );

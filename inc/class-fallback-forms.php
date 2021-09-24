@@ -12,13 +12,6 @@ namespace GF_Fallback\Inc;
  */
 class Fallback_Forms {
 	/**
-	 * Instance of this class
-	 *
-	 * @var boolean
-	 */
-	public static $instance = false;
-
-	/**
 	 * Using construct method to add any actions and filters
 	 */
 	public function __construct() {
@@ -26,18 +19,6 @@ class Fallback_Forms {
 		add_filter( 'gform_get_form_filter', [ $this, 'add_fallback_form' ], 10, 2 );
 		add_action( 'rest_api_init', [ $this, 'register_endpoint' ] );
 		add_action( 'save_post_program', [ $this, 'flush_transient' ], 10, 3 );
-	}
-
-	/**
-	 * Singleton
-	 *
-	 * Returns a single instance of this class.
-	 */
-	public static function singleton() {
-		if ( ! self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
 	}
 
 	/**
