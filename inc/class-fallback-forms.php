@@ -69,7 +69,7 @@ class Fallback_Forms {
 
 		if ( is_array( $form['fields'] ) ) {
 			foreach ( $form['fields'] as $field ) {
-				if ( 'administrative' === $field->visibility ) {
+				if ( in_array( $field->visibility, [ 'administrative', 'hidden' ], true ) ) {
 					continue;
 				}
 
