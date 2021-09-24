@@ -8,6 +8,13 @@
     "type": "git",
     "url": ""
   },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "scripts": "gulp scripts",
+    "styles": "gulp styles",
+    "dev": "gulp dev",
+    "build": "gulp build"
+  },
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.15.5",
@@ -42,9 +49,5 @@
     "webpack": "^5.53.0",
     "webpack-stream": "^7.0.0"
   },
-  "dependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "gulp": "gulp"
-  }
+  "dependencies": {}
 }
