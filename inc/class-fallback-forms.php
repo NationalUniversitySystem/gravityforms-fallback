@@ -131,6 +131,10 @@ class Fallback_Forms {
 	 * @return void
 	 */
 	public function register_endpoint() {
+		if ( defined( 'GF_FALLBACK_DEBUG' ) && true === GF_FALLBACK_DEBUG ) {
+			return;
+		}
+
 		$namespace = 'gravityforms-fallback/v' . GF_FALLBACK_VERSION;
 
 		register_rest_route( $namespace, '/faux', [
