@@ -1,4 +1,5 @@
 import TerserPlugin from 'terser-webpack-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
 
 module.exports = {
 	module: {
@@ -8,6 +9,7 @@ module.exports = {
 			},
 		],
 	},
+	plugins: [ new ESLintPlugin() ],
 	mode: 'production',
 	devtool: 'nosources-source-map',
 	externals: {
