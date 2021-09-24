@@ -12,6 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "scripts": "gulp scripts",
     "styles": "gulp styles",
+    "lint": "gulp lint",
     "dev": "gulp dev",
     "build": "gulp build"
   },
