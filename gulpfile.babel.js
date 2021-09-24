@@ -33,6 +33,7 @@ import autoprefixer from 'gulp-autoprefixer';
 import cleanCSS from 'gulp-clean-css';
 import nodeSass from 'node-sass';
 import gulpSass from 'gulp-sass';
+import sourcemaps from 'gulp-sourcemaps';
 import styleLint from 'gulp-stylelint';
 
 // JS related plugins.
@@ -132,18 +133,25 @@ sassLinter.description = 'Lint through all our SCSS files so our code is consist
 export const css = done => {
 	del( './assets/css/*' );
 
-	src( 'src/scss/wp-*.scss', { sourcemaps: true } )
+	src( './src/scss/wp-*.scss' )
+		.pipe( sourcemaps.init() )
 		.pipe( plumber( errorHandler ) )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( dest( './assets/css', { sourcemaps: '.' } ) );
+		.pipe( sourcemaps.write( '.', {
+			includeContent: false,
+			sourceRoot: '../../src/scss',
+		} ) )
+		.pipe( dest( './assets/css' ) );
 
 	src( [
-		'src/scss/*.scss',
+		'./src/scss/*.scss',
 		'!src/scss/wp-*.scss',
-	], { sourcemaps: true } )
+	] )
+		.pipe( sourcemaps.init() )
 		.pipe( plumber( errorHandler ) )
 		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+		.pipe( dest( './assets/css' ) )
 		.pipe( autoprefixer( {
 			cascade: false,
 		} ) )
@@ -157,7 +165,11 @@ export const css = done => {
 			},
 		} ) )
 		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( dest( './assets/css', { sourcemaps: '.' } ) )
+		.pipe( sourcemaps.write( '.', {
+			includeContent: false,
+			sourceRoot: '../../src/scss',
+		} ) )
+		.pipe( dest( './assets/css' ) )
 		.pipe( server.stream( {
 			match: '**/*.css', // Sourcemap is in stream so match for actual CSS files
 		} ) );
