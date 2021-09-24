@@ -9,8 +9,8 @@ module.exports = {
 		"eslint:recommended",
 		"plugin:@wordpress/eslint-plugin/recommended-with-formatting"
 	],
+	'parser': "@babel/eslint-parser",
 	"parserOptions": {
-		"ecmaVersion": 2018,
 		"sourceType": "module"
 	},
 	"rules": {
