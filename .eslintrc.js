@@ -13,6 +13,9 @@ module.exports = {
 		"sourceType": "module"
 	},
 	"rules": {
+		"@wordpress/no-global-active-element": "off",
+		"@wordpress/no-unsafe-wp-apis": "off",
+		"@wordpress/no-global-get-selection": "off",
 		"arrow-parens": [
 			"error",
 			"as-needed"
@@ -22,7 +25,7 @@ module.exports = {
 				"max": 8
 			}
 		],
-		"eqeqeq": [ "error", "smart"] ,
+		"eqeqeq": [ "error", "smart" ],
 		"lines-around-comment": "off",
 		"space-in-parens": [ "warn", "always" ],
 		"no-empty-function": [
