@@ -16,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'GF_FALLBACK_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_FALLBACK_URL', plugin_dir_url( __FILE__ ) );
-define( 'GF_FALLBACK_VERSION', '0.1.2' );
+define( 'GF_FALLBACK_VERSION', '0.2.0' );
 
 use GF_Fallback\Autoload\Init;
 
