@@ -23,7 +23,7 @@
     "@babel/preset-env": "^7.15.6",
     "@babel/register": "^7.15.3",
     "@wordpress/eslint-plugin": "^9.1.2",
-    "axios": "^0.21.4",
+    "axios": "^0.22.0",
     "browser-sync": "^2.27.5",
     "del": "^6.0.0",
     "eslint": "^7.32.0",
